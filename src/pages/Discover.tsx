@@ -37,11 +37,30 @@ const { data: services, isLoading: servicesLoading } = useQuery({
   queryFn: async () => {
     const query = supabase
       .from("services")
-      .select("*, provider:profiles(*)")
+      .select(`
+        *,
+        provider:profiles (
+          id,
+          full_name,
+          contact_number,
+          address,
+          city,
+          bio
+        )
+      `)
       .eq('is_active', true);
     
     if (selectedCategory) {
       query.eq('category', selectedCategory);
+    }
+
+    if (selectedCity) {
+      query.eq('city', selectedCity);
+    }
+
+    if (priceRange) {
+      query.gte('price', priceRange[0])
+           .lte('price', priceRange[1]);
     }
 
     const { data, error } = await query;
